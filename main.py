@@ -8,26 +8,23 @@ from websocket import create_connection
 import time
 import json
 
-import assistant
+import src.assistant as assistant
 
-WS_URL = "ws://localhost:6672/ws"
+WS_URL = "ws://host.docker.internal:6672/ws"
 WS_TYPE_IN = "friday_assistant_request"
 WS_TYPE_OUT = "friday_assistant_response"
 
 
 def connect_to_server():
-    """Connect to the WebSocket server."""
-    ws = None
-    
-    while ws is None:
+    """Connect to the WebSocket server with retry logic."""
+    while True:
         try:
             ws = create_connection(WS_URL)
             print(f"Connected to WebSocket server at {WS_URL}")
+            return ws
         except Exception as e:
-            print(f"Error: {e}")
-        finally:
+            print(f"Connection error: {e}. Retrying in 5 seconds...")
             time.sleep(5)
-    return ws
 
 
 def on_message(ws) -> str:
@@ -73,4 +70,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Starting Friday Assistant...")
     main()
